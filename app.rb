@@ -3,9 +3,14 @@ require 'sinatra/base'
 require 'uri'
 require 'birds'
 
+
 class App < Sinatra::Base
   set :haml, :format => :html5 
   set :app_file, __FILE__
+  set :static, true
+  set :root, File.dirname(__FILE__)
+  set :views, File.join(File.dirname(__FILE__), "views")
+  set :public, File.join(File.dirname(__FILE__), "public")
 
   include Birds
 
@@ -52,6 +57,7 @@ class App < Sinatra::Base
   end
 
   post '/update' do
+    puts "UPDATE #{@params.inspect}"
     tag = @params["tag"]
     @tags = []
     if tag.kind_of? Array
@@ -61,6 +67,7 @@ class App < Sinatra::Base
     end
     @tags << "neo4j" unless @tags.include? "neo4j"
     @added = @birds.update(@tags)
+    puts "added #{@added}"
     redirect "/"
   end
 end
