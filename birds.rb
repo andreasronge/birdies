@@ -25,11 +25,11 @@ module Birds
   end
 
   def server_url=(url)
-    @server_url = URI.parse(url)
+    @server_url = url
   end
 
   def server_url
-    @server_url || URI.parse('http://localhost:7474')
+    @server_url || 'http://localhost:7474'
   end
 
 
@@ -41,14 +41,18 @@ module Birds
     JSON.parse(result)['return']
   end
 
-  def _server_call(clazz, method, value)
-    url = "/script/jruby/call?classandmethod=#{clazz}.#{method}"
-    res = Net::HTTP.start(server_url.host, server_url.port) do |http|
-      http.post(url, value)
-    end
-    raise "Error #{res.code} on '#{url}'" unless res.code == '200'
-    res.body
+  def _server_call(clazz, method, *args)
+    params = {:class => clazz, :method => method, :args => args.size}
+    args.each_with_index{|v, index| params.merge!({"arg#{index}" => v})}
+
+    url = URI.join(server_url, "/script/jruby/call").to_s
+    puts "CALL '#{url}'"
+    puts "PARAMS #{params.inspect}"
+    response = RestClient.post(url, params)
+    raise "Error #{response.code} on '#{url}'" unless response.code == 200
+    response.to_str
   end
 
+   # application/x-www-form-urlencoded
 
 end
