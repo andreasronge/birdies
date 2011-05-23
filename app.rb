@@ -14,22 +14,19 @@ class App < Sinatra::Base
 
   include Birds
 
-  before do
-    @birds = Birds.new
-  end
-
   get '/' do
     erb :index
   end
 
   get '/users' do
     content_type :json
-    @birds.users.collect{ |u| { :name => "@"+u.twid, :link => "/user/#{u.twid}", :value => u.outgoing(:TWEETED).size }}.to_json
+    users.collect{ |u| { :name => "@#{u[:twid]}", :link => "/user/#{u[:twid]}", :value => u[:tweeted]}}.to_json
+    #@birds.users.collect{ |u| { :name => "@"+u.twid, :link => "/user/#{u.twid}", :value => u.outgoing(:TWEETED).size }}.to_json
   end
 
   get '/user/:id' do |id|
     # user with :KNOWS, :TWEETED, :USED
-    @user = @birds.user(id) # sunburst, social graph
+    @user = user(id)
     erb :user
   end
 
@@ -38,36 +35,16 @@ class App < Sinatra::Base
     erb :tag
   end
 
-  get '/admin/tweettime' do
-    @birds.users.each { |u| u.outgoing(:TWEETED).each { |t| t.date = Time.parse(t.date).to_i if t.date.kind_of? String }}
-    "Updated tweets"
-  end
-  
-  get '/admin/update' do
-    @birds.update_users(@birds.users).inspect
-  end
-  
-  get '/info/:twids' do |twids|
-    @birds.sg_info(twids.split(',')).inspect
-  end
-
   get '/tags' do
     content_type :json
     @birds.tags.collect{ |t| { :name => "#"+t.name, :link => "/tag/#{t.name}", :value => t.incoming(:TAGGED).size } }.to_json
   end
 
   post '/update' do
-    puts "UPDATE #{@params.inspect}"
-    tag = @params["tag"]
-    @tags = []
-    if tag.kind_of? Array
-      @tags + tag
-    else
-      @tags << tag
-    end
-    @tags << "neo4j" unless @tags.include? "neo4j"
-    @added = @birds.update(@tags)
-    puts "added #{@added}"
+    @tags = @params["tag"].split
+    puts "UPDATE #{@params.inspect}, tags #{@tags.inspect}"
+    #@tags << "neo4j" unless @tags.include? "neo4j"
+    update_tweets(@tags)
     redirect "/"
   end
 end
