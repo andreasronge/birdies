@@ -20,7 +20,8 @@ class App < Sinatra::Base
 
   get '/users' do
     content_type :json
-    users.collect{ |u| { :name => "@#{u[:twid]}", :link => "/user/#{u[:twid]}", :value => u[:tweeted]}}.to_json
+    users
+    # users.collect{ |u| { :name => "@#{u[:twid]}", :link => "/user/#{u[:twid]}", :value => u[:tweeted]}}.to_json
     #@birds.users.collect{ |u| { :name => "@"+u.twid, :link => "/user/#{u.twid}", :value => u.outgoing(:TWEETED).size }}.to_json
   end
 
@@ -37,7 +38,8 @@ class App < Sinatra::Base
 
   get '/tags' do
     content_type :json
-    @birds.tags.collect{ |t| { :name => "#"+t.name, :link => "/tag/#{t.name}", :value => t.incoming(:TAGGED).size } }.to_json
+    tags
+    #@birds.tags.collect{ |t| { :name => "#"+t.name, :link => "/tag/#{t.name}", :value => t.incoming(:TAGGED).size } }.to_json
   end
 
   post '/update' do

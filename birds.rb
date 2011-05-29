@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'neography'
 require 'uri'
 require 'twitter'
 require 'json'
@@ -9,12 +8,13 @@ require 'neo4j-server'
 module Birds
 
   def users(*)
-
+    _server_call("BirdiesBackend", 'users')
   end
 
   def tags(*)
-
+    _server_call("BirdiesBackend", 'tags')
   end
+
   def update_tweets(tags)
     search = Twitter::Search.new
     puts tags.inspect
