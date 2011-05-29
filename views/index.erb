@@ -1,28 +1,3 @@
-<% unless (@added.nil? || @added.empty?) %>
- <h3>Added Tweets</h3>
-	<ul>
-		<% @added.each do |i| %>
-			<li><%= i.text %></li>
-		<% end %>
-	</ul>
-<% end %>
-
 <form action="/update" method="post">
   Search for tags <input type="text" name="tag" value=""/> <input type="submit" name="update" value="Add Tweets"/>
 </form>
-
-<div id="users" style="width:500px;height:500px;">
-</div>
-<div id="tags" style="width:500px;height:500px;">
-</div>
-<script type="text/javascript">
-
-$(document).ready(function() {
-	$.getJSON('/users', function(data) {
-		render(data,'users');
-	});
-	$.getJSON('/tags', function(data) {
-		render(data,'tags');
-	});
-});
-</script>

@@ -15,13 +15,29 @@ module Birds
     _server_call("BirdiesBackend", 'tags')
   end
 
+  def user(id)
+    _server_call("BirdiesBackend", 'user', id)
+  end
+
+  def tag(id)
+    _server_call("BirdiesBackend", 'tag', id)
+  end
+
+  def tweet(tweet_id)
+    _server_call("BirdiesBackend", 'tweet', tweet_id)
+  end
+
   def update_tweets(tags)
     search = Twitter::Search.new
     puts tags.inspect
     tags.each { |tag| search.hashtag(tag) }
     puts "UPDATE TWEETS"
-    while (_update_tweets(search.fetch_next_page))
+    added = []
+    while (!(new_tweets = _update_tweets(search.fetch_next_page)).empty?)
+      new_tweets.each{|t| puts "ADD #{t}"; added << t}
     end
+    puts "got added #{added.inspect}"
+    added
   end
 
   def server_url=(url)
@@ -34,11 +50,9 @@ module Birds
 
 
   def _update_tweets(tweets)
-    return false if tweets.nil?
-    puts "_update_tweets '#{tweets}'"
+    return [] if tweets.nil?
     result = _server_call('BirdiesBackend', 'update_tweets', tweets.to_json)
-    puts "got result '#{result}'"
-    JSON.parse(result)['return']
+    result['tweets'] || []
   end
 
   def _server_call(clazz, method, *args)
@@ -46,11 +60,12 @@ module Birds
     args.each_with_index{|v, index| params.merge!({"arg#{index}" => v})}
 
     url = URI.join(server_url, "/script/jruby/call").to_s
-    puts "CALL '#{url}'"
-    puts "PARAMS #{params.inspect}"
     response = RestClient.post(url, params)
     raise "Error #{response.code} on '#{url}'" unless response.code == 200
-    response.to_str
+    s = response.to_str.to_s.clone
+    parsed = JSON.parse(s)
+    puts "RETURN #{parsed.inspect}"
+    parsed['return']
   end
 
    # application/x-www-form-urlencoded

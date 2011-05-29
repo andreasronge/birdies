@@ -1,0 +1,6 @@
+<h2>Id #<%= @tweet['tweet_id'] %></h2>
+
+<a href="<%=@tweet['link'] %>"> <%= @tweet['text'] %> </a>
+
+<h3>Tweeted by</h3>
+<a href="/user/<%=@tweet['tweeted_by']['twid'] %>"> <%= @tweet['tweeted_by']['twid'] %> </a>

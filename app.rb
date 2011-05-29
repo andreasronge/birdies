@@ -18,6 +18,11 @@ class App < Sinatra::Base
     erb :index
   end
 
+  get '/tweet/:id' do |tweet_id|
+    @tweet = tweet(tweet_id)
+    erb :tweet
+  end
+
   get '/users' do
     content_type :json
     users
@@ -26,27 +31,26 @@ class App < Sinatra::Base
   end
 
   get '/user/:id' do |id|
-    # user with :KNOWS, :TWEETED, :USED
     @user = user(id)
+    puts "GOT USER #{@user}"
     erb :user
   end
 
   get '/tag/:id' do |id|
-    @tag = @birds.tag(id)
+    @tag = tag(id)
+    puts "GOT #{@tag.inspect}"
     erb :tag
   end
 
   get '/tags' do
     content_type :json
     tags
-    #@birds.tags.collect{ |t| { :name => "#"+t.name, :link => "/tag/#{t.name}", :value => t.incoming(:TAGGED).size } }.to_json
   end
 
   post '/update' do
     @tags = @params["tag"].split
-    puts "UPDATE #{@params.inspect}, tags #{@tags.inspect}"
-    #@tags << "neo4j" unless @tags.include? "neo4j"
-    update_tweets(@tags)
-    redirect "/"
+    @added = update_tweets(@tags)
+    erb :updated
+      # redirect "/" does not work since the instance variable @added is not available, use rack-flash to send strings using session
   end
 end
