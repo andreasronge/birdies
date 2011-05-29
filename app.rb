@@ -25,7 +25,9 @@ class App < Sinatra::Base
 
   get '/users' do
     content_type :json
-    users
+    ret = users
+    puts "GOT USERS '#{ret.to_json}'"
+    ret.to_json
     # users.collect{ |u| { :name => "@#{u[:twid]}", :link => "/user/#{u[:twid]}", :value => u[:tweeted]}}.to_json
     #@birds.users.collect{ |u| { :name => "@"+u.twid, :link => "/user/#{u.twid}", :value => u.outgoing(:TWEETED).size }}.to_json
   end
@@ -44,7 +46,7 @@ class App < Sinatra::Base
 
   get '/tags' do
     content_type :json
-    tags
+    tags.to_json
   end
 
   post '/update' do
